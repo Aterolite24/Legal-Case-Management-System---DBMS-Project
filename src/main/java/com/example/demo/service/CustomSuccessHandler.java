@@ -1,3 +1,4 @@
+
 package com.example.demo.service;
 
 import java.io.IOException;
@@ -30,7 +31,7 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
             .anyMatch(authority -> authority.getAuthority().equals("ROLE_PARALEGAL"));
 
         if (isAdmin) {
-            response.sendRedirect("/clients");
+            response.sendRedirect("/dd");
         } else if (isClient) {
             response.sendRedirect("/client-page");
         } else if (isLawyer) {

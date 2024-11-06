@@ -1,13 +1,15 @@
 package com.example.demo.Controller;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+
+import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,14 +18,44 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.example.demo.dao.CaseNotesDAO;
+import com.example.demo.dao.CategoryDAO;
+import com.example.demo.dao.CivilCaseDAO;
+import com.example.demo.dao.CommonDAO;
+import com.example.demo.dao.CorporateCaseDAO;
+import com.example.demo.dao.CriminalCaseDAO;
 import com.example.demo.dao.LawyerDAO; // Ensure you have a corresponding LawyerDAO
+import com.example.demo.dao.MatrimonialCaseDAO;
+import com.example.demo.model.CaseNoteWithDetails;
+import com.example.demo.model.CaseNotes;
+import com.example.demo.model.Category;
 import com.example.demo.model.Lawyer; // Ensure you have a corresponding Lawyer model
 
 @Controller
 public class LawyerController {
 
     @Autowired
+    private CaseNotesDAO caseNoteDAO;
+
+    @Autowired
+    private CategoryDAO categoryDAO;
+
+    @Autowired
+    private CorporateCaseDAO cC;
+
+    @Autowired
+    private CivilCaseDAO cc;
+
+    @Autowired
+    private CriminalCaseDAO cr;
+    @Autowired
+    private MatrimonialCaseDAO ma;
+
+    @Autowired
     private LawyerDAO lawyerDAO;
+
+    @Autowired
+    private CommonDAO commonDAO;
 
     @GetMapping("/register/lawyer")
     public String showLawyerForm(Model model) {
@@ -32,36 +64,78 @@ public class LawyerController {
         return "lawyer"; // Return the lawyer registration form view
     }
 
+    // @PostMapping("/register/lawyer")
+    // public String submitLawyerForm(@ModelAttribute("lawyer") Lawyer lawyer,
+    //                                @RequestParam String phoneNumber1,
+    //                                @RequestParam(required = false) String phoneNumber2,
+    //                                @RequestParam String email1,
+    //                                @RequestParam(required = false) String email2) {
+    //     // Save the lawyer first to get the ID
+    //     lawyerDAO.saveLawyer(lawyer);
+
+    //     // After saving, retrieve the generated ID
+    //     Integer lawyerId = lawyerDAO.getLastInsertId();
+
+    //     // Save phone numbers if provided
+    //     if (phoneNumber1 != null && !phoneNumber1.isEmpty()) {
+    //         lawyerDAO.saveLawyerPhone(lawyerId, phoneNumber1);
+    //     }
+    //     if (phoneNumber2 != null && !phoneNumber2.isEmpty()) {
+    //         lawyerDAO.saveLawyerPhone(lawyerId, phoneNumber2);
+    //     }
+
+    //     // Save emails if provided
+    //     if (email1 != null && !email1.isEmpty()) {
+    //         lawyerDAO.saveLawyerEmail(lawyerId, email1);
+    //     }
+    //     if (email2 != null && !email2.isEmpty()) {
+    //         lawyerDAO.saveLawyerEmail(lawyerId, email2);
+    //     }
+
+    //     return "redirect:/lawyers"; // Redirect to success page
+    // }
     @PostMapping("/register/lawyer")
     public String submitLawyerForm(@ModelAttribute("lawyer") Lawyer lawyer,
                                    @RequestParam String phoneNumber1,
                                    @RequestParam(required = false) String phoneNumber2,
                                    @RequestParam String email1,
-                                   @RequestParam(required = false) String email2) {
-        // Save the lawyer first to get the ID
-        lawyerDAO.saveLawyer(lawyer);
+                                   @RequestParam(required = false) String email2,
+                                   Model model) {
+       
+            if (commonDAO.checkEmailExistsInAllTables(email1) || 
+                (email2 != null && commonDAO.checkEmailExistsInAllTables(email2))) {
+                model.addAttribute("errorMessage", "Email already exists in the system.");
+                return "lawyer"; // Return to the registration form with an error
+            }
 
-        // After saving, retrieve the generated ID
-        Integer lawyerId = lawyerDAO.getLastInsertId();
+            // Check for existing phone numbers
+            if (commonDAO.checkPhoneExistsInAllTables(phoneNumber1) || 
+                (phoneNumber2 != null && commonDAO.checkPhoneExistsInAllTables(phoneNumber2))) {
+                model.addAttribute("errorMessage", "Phone number already exists in the system.");
+                return "lawyer"; // Return to the registration form with an error
+            }
 
-        // Save phone numbers if provided
-        if (phoneNumber1 != null && !phoneNumber1.isEmpty()) {
+            // Save the lawyer to the database
+            lawyerDAO.saveLawyer(lawyer);
+            Integer lawyerId = lawyerDAO.getLastInsertId();
+
+            // Save phone numbers if provided
             lawyerDAO.saveLawyerPhone(lawyerId, phoneNumber1);
-        }
-        if (phoneNumber2 != null && !phoneNumber2.isEmpty()) {
-            lawyerDAO.saveLawyerPhone(lawyerId, phoneNumber2);
-        }
+            if (phoneNumber2 != null && !phoneNumber2.isEmpty()) {
+                lawyerDAO.saveLawyerPhone(lawyerId, phoneNumber2);
+            }
 
-        // Save emails if provided
-        if (email1 != null && !email1.isEmpty()) {
+            // Save emails if provided
             lawyerDAO.saveLawyerEmail(lawyerId, email1);
-        }
-        if (email2 != null && !email2.isEmpty()) {
-            lawyerDAO.saveLawyerEmail(lawyerId, email2);
-        }
+            if (email2 != null && !email2.isEmpty()) {
+                lawyerDAO.saveLawyerEmail(lawyerId, email2);
+            }
 
-        return "redirect:/lawyers"; // Redirect to success page
+            return "redirect:/lawyers"; // Redirect to the success page
+    
     }
+    
+
 
     @GetMapping("/lawyers")
     public String listLawyers(Model model) {
@@ -128,6 +202,49 @@ public class LawyerController {
 
         return "redirect:/lawyers"; // Redirect to the lawyer list after updating
     }
+//     @PostMapping("/lawyers/update")
+// public String updateLawyer(@ModelAttribute Lawyer lawyer, 
+//                            @RequestParam String phoneNumber1, 
+//                            @RequestParam(required = false) String phoneNumber2, 
+//                            @RequestParam String email1,
+//                            @RequestParam(required = false) String email2,
+//                            Model model) {
+//     // Fetch existing phone numbers and emails for the lawyer
+//     List<String> existingPhones = lawyerDAO.getLawyerPhones(lawyer.getLawyerID());
+//     List<String> existingEmails = lawyerDAO.getLawyerEmails(lawyer.getLawyerID());
+
+//     // Validate new email addresses
+//     if (!email1.equals(existingEmails.get(0)) && commonDAO.checkEmailExistsInAllTables(email1) ||
+//         (email2 != null && !email2.isEmpty() && !email2.equals(existingEmails.size() > 1 ? existingEmails.get(1) : "") && commonDAO.checkEmailExistsInAllTables(email2))) {
+//         model.addAttribute("errorMessage", "Email already exists in the system.");
+//         return "edit_lawyer"; // Return to the edit form with an error
+//     }
+
+//     // Validate new phone numbers
+//     if (!phoneNumber1.equals(existingPhones.get(0)) && commonDAO.checkPhoneExistsInAllTables(phoneNumber1) ||
+//         (phoneNumber2 != null && !phoneNumber2.isEmpty() && !phoneNumber2.equals(existingPhones.size() > 1 ? existingPhones.get(1) : "") && commonDAO.checkPhoneExistsInAllTables(phoneNumber2))) {
+//         model.addAttribute("errorMessage", "Phone number already exists in the system.");
+//         return "edit_lawyer"; // Return to the edit form with an error
+//     }
+
+//     // Update the lawyer information
+//     lawyerDAO.updateLawyer(lawyer);
+
+//     // Update phone numbers
+//     List<String> newPhoneNumbers = new ArrayList<>();
+//     if (!phoneNumber1.isEmpty()) newPhoneNumbers.add(phoneNumber1);
+//     if (phoneNumber2 != null && !phoneNumber2.isEmpty()) newPhoneNumbers.add(phoneNumber2);
+//     lawyerDAO.updateLawyerPhones(lawyer.getLawyerID(), newPhoneNumbers);
+
+//     // Update emails
+//     List<String> newEmails = new ArrayList<>();
+//     if (!email1.isEmpty()) newEmails.add(email1);
+//     if (email2 != null && !email2.isEmpty()) newEmails.add(email2);
+//     lawyerDAO.updateLawyerEmails(lawyer.getLawyerID(), newEmails);
+
+//     return "redirect:/lawyers"; // Redirect to the lawyer list after updating
+// }
+
 
     @PostMapping("/lawyers/delete/{id}")
     public String deleteLawyer(@PathVariable("id") Integer id) {
@@ -145,6 +262,45 @@ public class LawyerController {
         return "law_list"; // Return the view name for displaying the lawyer list
     }
 
+    @GetMapping("/caseNotes/viewAll")
+    public String viewAllCaseNotes(@RequestParam("lawyerId") int lawyerId, Model model) {
+        List<CaseNotes> caseNotes = caseNoteDAO.getAllCaseNotesForLawyer(lawyerId);
+        List<CaseNoteWithDetails> enrichedCaseNotes = new ArrayList<>();
+
+        for (CaseNotes caseNote : caseNotes) {
+            Category category = categoryDAO.getCategoryById(caseNote.getCatID());
+            String caseName = getCaseNameById(caseNote.getCaseID(), caseNote.getCatID()); // Implement this method
+    
+            CaseNoteWithDetails detailedCaseNote = new CaseNoteWithDetails(caseNote, category.getCaseType(), caseName);
+            enrichedCaseNotes.add(detailedCaseNote);
+        }
+    
+        model.addAttribute("caseNotes", enrichedCaseNotes);
+        return "casenotelaw";  // Make sure this matches your Thymeleaf template name
+    }
+
+    private String getCaseNameById(int caseID, int catID) {
+        String caseName = "";
+    
+        switch (catID) {
+            case 1: // Corporate
+                caseName = cC.getCorporateCaseById(caseID).getCaseDesc();
+                break;
+            case 2: // Matrimonial
+                caseName = ma.getMatrimonialCaseById(caseID).getCaseDesc();
+                break;
+            case 3: // Civil
+                caseName = cc.getCivilCaseById(caseID).getCaseDesc();
+                break;
+            case 4: // Criminal
+                caseName = cr.getCriminalCaseById(caseID).getCaseDesc();
+                break;
+            default:
+                caseName = "Unknown Case";
+        }
+    
+        return caseName;
+    }
 
     
 }

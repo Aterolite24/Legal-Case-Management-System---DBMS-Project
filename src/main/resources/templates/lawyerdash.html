@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark" xmlns:th="http://www.thymeleaf.org">
 
@@ -18,8 +19,11 @@
 
             <main class="content px-3 py-2">
                 <div class="container-fluid">
-                    <div class="mb-3">
-                        <h4>Lawyer Dashboard</h4>
+                    <div style="display:flex;flex-direction:row;justify-content: space-between;">
+                        <div class="mb-3" style="text-align:center;">
+                            <h2>Lawyer Dashboard</h2>
+                        </div>
+                        <div><a href="/logout">Logout</a></div>
                     </div>
 
                     <div class="dashboard-header">
@@ -27,17 +31,34 @@
                         <p>Status: <span th:text="${status}">Not Approved</span></p>
                     </div>
 
+                    <!-- <div class="mb-3">
+                        <a th:href="@{/caseNotes/viewAll(lawyerId=${lawyerId})}" class="btn btn-info">
+                            View All Case Notes
+                        </a>
+                    </div> -->
+                    <div class="mb-3">
+                        <a th:href="@{/caseNotes/viewAll(lawyerId=${lawyerId})}" 
+                           class="btn btn-info" 
+                           th:classappend="${status == 'Not Approved'} ? 'disabled' : ''"
+                           th:attr="disabled=${status == 'Not Approved'}">
+                            View All Case Notes
+                        </a>
+                    </div>
+                    
+
                     <div th:if="${noAssignments}" class="alert alert-warning" role="alert">
                         <p th:text="${noAssignments}"></p>
                     </div>
 
-                    <div th:if="${tasksByCaseType}" class="card border-0 mb-3">
+                    <div th:if="${tasksByCaseType}" class="card border-0 mb-3" style="padding: 30px;">
                         <div class="card-header">
                             <h5>Assigned Tasks</h5>
                         </div>
                         <div class="card-body">
                             <div th:each="entry : ${tasksByCaseType}">
-                                <h6 th:text="${entry.key}">Case Type</h6> <!-- Displaying the case type -->
+                                <div style="width:300px;background:blue;color:black;text-align:center;border-radius: 12px;">
+                                    <h6 th:text="${entry.key}">Case Type</h6> 
+                                </div>
                                 <table class="table table-striped">
                                     <thead>
                                         <tr>
@@ -54,7 +75,6 @@
                                             <td th:text="${task.Status}"></td>
                                             <td th:text="${task.CaseDesc}"></td>
                                             <td>
-                                                <!-- Link to create case notes -->
                                                 <a th:href="@{/caseNotes/create(caseID=${task.CaseID}, catID=${task.CatID})}" class="btn btn-primary">
                                                     Create Case Note
                                                 </a>
@@ -66,7 +86,6 @@
                         </div>
                     </div>
 
-                
                 </div>
             </main>
         </div>
@@ -77,3 +96,4 @@
 </body>
 
 </html>
+

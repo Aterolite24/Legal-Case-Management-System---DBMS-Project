@@ -32,7 +32,7 @@
                             <th>Appointment ID</th>
                             <th> Case ID</th>
                             <th>Lawyer ID</th>
-                            <th>Client ID</th>
+
                             <th>Appointment Date</th>
                             <th>Appointment Time</th>
                             <th>Location</th>
@@ -44,7 +44,7 @@
                             <td th:text="${appointment.appointmentID}"></td>
                             <td th:text="${appointment.CaseID}"></td>
                             <td th:text="${appointment.lawyerID}"></td>
-                            <td th:text="${appointment.clientID}"></td>
+        
                             <td th:text="${appointment.appointmentDate != null ? appointment.appointmentDate.toString() : 'N/A'}"></td>
                             <td th:text="${appointment.appointmentTime != null ? appointment.appointmentTime.toString() : 'N/A'}"></td>
                             <td th:text="${appointment.location}"></td>

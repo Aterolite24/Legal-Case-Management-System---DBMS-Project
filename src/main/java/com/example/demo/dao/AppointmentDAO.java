@@ -18,12 +18,11 @@ public class AppointmentDAO {
 
     // Save a new appointment
     public void saveAppointment(Appointment appointment) {
-        String query = "INSERT INTO Appointment (CatID, CaseID, LawyerID, ClientID, AppointmentDate, AppointmentTime, Location) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO Appointment (CatID, CaseID, LawyerID, AppointmentDate, AppointmentTime, Location) VALUES (?, ?, ?, ?, ?, ?)";
         jdbcTemplate.update(query,
             appointment.getCatID(), // Assuming you have a method to get CatID directly from Appointment
             appointment.getCaseID(), // Assuming you have a direct case ID
-            appointment.getLawyerID(), // Assuming you have a direct lawyer ID
-            appointment.getClientID(), // Assuming you have a direct client ID
+            appointment.getLawyerID(), // Assuming you have a direct lawyer ID // Assuming you have a direct client ID
             Date.valueOf(appointment.getAppointmentDate()), // Convert LocalDate to SQL Date
             Time.valueOf(appointment.getAppointmentTime()), // Convert LocalTime to SQL Time
             appointment.getLocation()
@@ -38,7 +37,6 @@ public class AppointmentDAO {
             appointment.setAppointmentID(rs.getInt("AppointmentID"));
             appointment.setCaseID(rs.getInt("CaseID"));
             appointment.setLawyerID(rs.getInt("LawyerID"));
-            appointment.setClientID(rs.getInt("ClientID"));
             appointment.setAppointmentDate(rs.getDate("AppointmentDate").toLocalDate());
             appointment.setAppointmentTime(rs.getTime("AppointmentTime").toLocalTime());
             appointment.setLocation(rs.getString("Location"));
@@ -55,7 +53,6 @@ public class AppointmentDAO {
             appointment.setAppointmentID(rs.getInt("AppointmentID"));
             appointment.setCaseID(rs.getInt("CaseID"));
             appointment.setLawyerID(rs.getInt("LawyerID"));
-            appointment.setClientID(rs.getInt("ClientID"));
             appointment.setAppointmentDate(rs.getDate("AppointmentDate").toLocalDate());
             appointment.setAppointmentTime(rs.getTime("AppointmentTime").toLocalTime());
             appointment.setLocation(rs.getString("Location"));
@@ -66,12 +63,11 @@ public class AppointmentDAO {
 
     // Update an appointment
     public void updateAppointment(Appointment appointment) {
-        String query = "UPDATE Appointment SET CatID = ?, CaseID = ?, LawyerID = ?, ClientID = ?, AppointmentDate = ?, AppointmentTime = ?, Location = ? WHERE AppointmentID = ?";
+        String query = "UPDATE Appointment SET CatID = ?, CaseID = ?, LawyerID = ?, AppointmentDate = ?, AppointmentTime = ?, Location = ? WHERE AppointmentID = ?";
         jdbcTemplate.update(query,
             appointment.getCatID(), // Assuming you have a method to get CatID directly from Appointment
             appointment.getCaseID(), // Assuming you have a direct case ID
             appointment.getLawyerID(), // Assuming you have a direct lawyer ID
-            appointment.getClientID(), // Assuming you have a direct client ID
             Date.valueOf(appointment.getAppointmentDate()), // Convert LocalDate to SQL Date
             Time.valueOf(appointment.getAppointmentTime()), // Convert LocalTime to SQL Time
             appointment.getLocation(), // Location from Appointment object
@@ -94,7 +90,6 @@ public class AppointmentDAO {
             appointment.setAppointmentID(rs.getInt("AppointmentID"));
             appointment.setCaseID(rs.getInt("CaseID"));
             appointment.setLawyerID(rs.getInt("LawyerID"));
-            appointment.setClientID(rs.getInt("ClientID"));
             appointment.setAppointmentDate(rs.getDate("AppointmentDate").toLocalDate());
             appointment.setAppointmentTime(rs.getTime("AppointmentTime").toLocalTime());
             appointment.setLocation(rs.getString("Location"));

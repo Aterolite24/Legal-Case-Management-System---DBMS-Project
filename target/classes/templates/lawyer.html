@@ -11,11 +11,20 @@
             content: " *";
             color: red;
         }
+        .alert {
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="container mt-5">
         <h2>Lawyer Registration</h2>
+
+        <!-- Display error message if exists -->
+        <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+            <span th:text="${errorMessage}"></span>
+        </div>
+
         <form th:action="@{/register/lawyer}" th:object="${lawyer}" method="post">
             <div class="form-row">
                 <div class="form-group col-md-4">
@@ -49,8 +58,8 @@
                     <input type="number" class="form-control" id="experience" th:field="*{experience}" min="0" placeholder="Enter experience" required>
                 </div>
                 <div class="form-group col-md-6">
-                    <label for="expertise">Expertise</label>
-                    <input type="text" class="form-control" id="expertise" th:field="*{expertise}" placeholder="Enter expertise">
+                    <label for="expertise" class="required">Expertise</label>
+                    <input type="text" class="form-control" id="expertise" th:field="*{expertise}" placeholder="Enter expertise" required>
                 </div>
             </div>
 
@@ -59,7 +68,6 @@
                     <label for="positions">Positions</label>
                     <input type="text" class="form-control" id="positions" th:field="*{positions}" placeholder="Enter positions">
                 </div>
-            
             </div>
 
             <div class="form-row">

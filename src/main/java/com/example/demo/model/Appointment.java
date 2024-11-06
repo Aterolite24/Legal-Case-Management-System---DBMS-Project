@@ -8,8 +8,7 @@ public class Appointment {
     private int appointmentID;   // Corresponds to AppointmentID
     private int catID;           // Corresponds to CatID
     private int caseID;          // Corresponds to CaseID
-    private int lawyerID;        // Corresponds to LawyerID
-    private int clientID;        // Corresponds to ClientID
+    private int lawyerID;        // Corresponds to LawyerID      
     private LocalDate appointmentDate;  // Corresponds to AppointmentDate
     private LocalTime appointmentTime;  // Corresponds to AppointmentTime
     private String location;     // Corresponds to Location
@@ -46,15 +45,6 @@ public class Appointment {
     public void setLawyerID(int lawyerID) {
         this.lawyerID = lawyerID;
     }
-
-    public int getClientID() {
-        return clientID;
-    }
-
-    public void setClientID(int clientID) {
-        this.clientID = clientID;
-    }
-
     public LocalDate getAppointmentDate() {
         return appointmentDate;
     }
