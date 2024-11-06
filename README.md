@@ -55,7 +55,7 @@ The **Legal Case Management System** is a comprehensive web application designed
 - **Backend:**
   - Java 11
   - Spring Boot
-  - Spring Data JPA
+  - Spring Data JDBC
   - Spring Security
   - Maven
 
